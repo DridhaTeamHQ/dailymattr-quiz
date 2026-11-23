@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 
 import { getQuizEdition } from "@/lib/quiz/generate"
-import { getDailyEdition } from "@/lib/quiz/edition"
+import { getEditionDate } from "@/lib/quiz/edition"
 import { getRecentStories } from "@/lib/quiz/stories"
 import { seoMetadata } from "@/lib/seo"
 
@@ -42,8 +42,8 @@ export default function QuizStoryPage({ params }: PageProps<"/quizz/[slug]">) {
 
 async function StoryQuiz({ params }: { params: Params }) {
   const { slug } = await params
-  const [edition, today] = await Promise.all([getQuizEdition(slug), getDailyEdition()])
+  const [edition, date] = await Promise.all([getQuizEdition(slug), getEditionDate()])
   if (!edition) notFound()
   // Keyed by story so moving between stories always starts fresh at question 1.
-  return <Quiz key={slug} edition={edition} date={today.date} />
+  return <Quiz key={slug} edition={edition} date={date} />
 }

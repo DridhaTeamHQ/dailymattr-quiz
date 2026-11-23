@@ -6,6 +6,13 @@ import { getQuizEdition } from "./generate"
 import { QUIZ_CATEGORIES, formatDate, getRecentStories, getStory, type StoryMeta } from "./stories"
 
 /**
+ * How /quizz picks its four stories (one each from Sports, Technology, Business, World):
+ *   "random"  a random story per category from the last 24 hours, on every visit
+ *   "daily"   the latest story per category, picked once a day and kept all day (below)
+ */
+export const PICK_MODE: "random" | "daily" = "random"
+
+/**
  * The daily News IQ edition: the latest story in each category (Sports, Technology, Business,
  * World), chosen once per day (India time) and kept for the whole day, so every reader sees the
  * same four stories until the next day's edition. The pick is saved under .cache/editions so a
@@ -18,6 +25,31 @@ const DIR = path.join(process.cwd(), ".cache", "editions")
 const todayIST = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
 
 export type DailyEdition = { day: string; date: string; stories: StoryMeta[] }
+
+/** One random story per category from the last 24 hours. Request time only. */
+async function getRandomPicks(): Promise<DailyEdition> {
+  await connection()
+  const day = todayIST()
+  const recent = await getRecentStories()
+  const stories = QUIZ_CATEGORIES.flatMap((c) => {
+    const pool = recent.filter((s) => s.category === c.name)
+    return pool.length ? [pool[Math.floor(Math.random() * pool.length)]] : []
+  })
+  // Start writing the four quizzes now, so opening one is quicker.
+  for (const s of stories) getQuizEdition(s.slug).catch(() => {})
+  return { day, date: formatDate(`${day}T12:00:00+05:30`), stories }
+}
+
+/** Today's edition date, like "23 November 2026" (India time). Request time only. */
+export async function getEditionDate(): Promise<string> {
+  await connection()
+  return formatDate(`${todayIST()}T12:00:00+05:30`)
+}
+
+/** Today's four stories, picked the way PICK_MODE says. */
+export async function getTodaysPicks(): Promise<DailyEdition> {
+  return PICK_MODE === "random" ? getRandomPicks() : getDailyEdition()
+}
 
 /** Picks per day, so concurrent requests share one pick. */
 const inFlight = new Map<string, Promise<DailyEdition>>()

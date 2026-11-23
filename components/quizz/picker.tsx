@@ -1,7 +1,7 @@
 import { FadeIn } from "@/components/shared/fade-in"
 import { SITE_GUTTER } from "@/components/shared/layout"
 import { revealDelay } from "@/components/shared/reveal-delay"
-import { getDailyEdition } from "@/lib/quiz/edition"
+import { getEditionDate, getTodaysPicks } from "@/lib/quiz/edition"
 import { cn } from "@/lib/utils"
 import { intro, quizPath } from "./content"
 import { SeriesBar, StoryPickCard } from "./parts"
@@ -75,12 +75,11 @@ export function PickerSkeleton() {
 }
 
 /**
- * /quizz: today's edition, the latest story in each category (Sports, Technology, Business,
- * World). It is picked once a day and stays the same until the next day. Each card links to
- * /quizz/<slug>.
+ * /quizz: four stories, one per category (Sports, Technology, Business, World), picked as
+ * PICK_MODE in lib/quiz/edition.ts says. Each card links to /quizz/<slug>.
  */
 export async function QuizPicker() {
-  const { stories: picks } = await getDailyEdition()
+  const { stories: picks } = await getTodaysPicks()
 
   return (
     <section aria-labelledby="pick-heading" className="flex flex-col gap-4">
@@ -119,6 +118,6 @@ export async function QuizPicker() {
 
 /** Today's edition date for the bar on top. */
 export async function PickerDate() {
-  const { date } = await getDailyEdition()
+  const date = await getEditionDate()
   return <SeriesBar date={date} />
 }
