@@ -1,0 +1,336 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  /* Inter Tight is the site sans (app/layout.tsx); font-tight is kept as an alias for it. */
+  --font-tight: var(--font-sans);
+  /* The whole site is Inter Tight. These older per-page font utilities (Roboto on NIA, Plus
+     Jakarta Sans on Pix, Helvetica Neue elsewhere) are kept as aliases so the classes still
+     work, but all resolve to Inter Tight. */
+  --font-roboto: var(--font-sans);
+  --font-jakarta: var(--font-sans);
+  --font-helvetica: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-placeholder: var(--placeholder);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Type scale. Use Tailwind's named sizes (text-xs … text-7xl, leading-*) rather than
+ * text-[15px]. These fill the Figma sizes the default scale lacks:
+ *   text-md 15px · text-display 40px · text-6xl 64px (default 60) · text-9xl 120px (default 128)
+ */
+@theme {
+  --text-md: 0.9375rem; /* 15px */
+  --text-md--line-height: 1.4;
+  --text-display: 2.5rem; /* 40px */
+  --text-display--line-height: 1.2;
+  --text-6xl: 4rem; /* 64px */
+  --text-9xl: 7.5rem; /* 120px */
+  /* Bento wide-tile headlines, relative to the tile (an @container): Figma draws 72px and
+     120px on a 607px tile, so they keep that proportion — and stay on one line — at any width. */
+  --text-tile: 11.86cqw;
+  --text-tile--line-height: 1.05;
+  --text-tile-xl: 19.77cqw;
+  --text-tile-xl--line-height: 0.92;
+
+  /* Logo strip (components/recognized-in): the track holds two identical sets, so moving it
+     by half its width lands the second set exactly where the first started. */
+  --animate-marquee: marquee 40s linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/*
+ * Trax hero entrance (components/trax/hero-player.tsx): each piece arrives from its own offset
+ * (--intro-x / --intro-y / --intro-scale) into its normal place. Uses the individual translate
+ * and scale properties, so it stacks with the cards' rotateY transform. Kept out of @theme so
+ * it is always emitted for the arbitrary animate-[trax-intro_…] classes.
+ */
+@keyframes trax-intro {
+  from {
+    opacity: 0;
+    translate: var(--intro-x, 0) var(--intro-y, 0);
+    scale: var(--intro-scale, 1);
+  }
+}
+
+/*
+ * News IQ (/quizz) colours, from the dailymattr brand book v1. brand-blue (#3979ff, the logo's
+ * blue) passes against white only at 24px and up, so small blue text and white-on-blue buttons
+ * use brand-blue-deep instead.
+ */
+@theme {
+  --color-brand-blue: #3979ff;
+  --color-brand-blue-deep: #1f4fd1;
+  --color-brand-blue-deep-hover: #1a43b3;
+  --color-brand-blue-soft: #eaf1ff;
+  --color-accent-yellow: #ffeb7a;
+  --color-ink: #111418;
+  --color-ink-muted: #5b6472;
+  --color-paper: #f4f5f7;
+  --color-hairline: #d9dde3;
+  /* Borders of controls (options, secondary buttons): 3:1 on white. */
+  --color-line-strong: #8b94a3;
+  /* Progress and meter tracks, disabled button fill. */
+  --color-track: #eceef2;
+}
+
+/*
+ * Laptop sizing, no zoom: every size in the site is in rem (Tailwind's scale, and arbitrary
+ * values like py-[6.25rem]), so on 1024–1600px screens the root font size shrinks with the
+ * screen: 1vw = width / 1600 × 16px, never below 12px. A 1280px laptop gets 12.8px = 80% of
+ * the 1920px Figma layout's proportions, rendered at a true 100%. From 1600px up it is 16px.
+ * Write new sizes in rem (px ÷ 16) so they scale too.
+ *
+ * --site-scale (same ratio as a number, set by the script in app/layout.tsx) is only used to
+ * keep the navbar a little larger on laptops. NIA has its own scaling, so it stays at 16px.
+ */
+html {
+  --site-scale: var(--site-scale-auto, 1);
+}
+@media (min-width: 64rem) {
+  html {
+    font-size: clamp(12px, 1vw, 16px);
+  }
+}
+html:has(.nia-layout) {
+  --site-scale: 1;
+  font-size: 16px;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  /* Brand blue (#3b7cf6) */
+  --primary: oklch(0.615 0.195 261);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  /* Image/video placeholder fill (#dedede) */
+  --placeholder: oklch(0.906 0 0);
+  /* Positive stat highlight (bento green) */
+  --success: oklch(0.9 0.11 150);
+  --success-foreground: oklch(0.3 0.07 150);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.546 0.245 262.881);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.615 0.195 261);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --placeholder: oklch(0.32 0 0);
+  --success: oklch(0.45 0.1 150);
+  --success-foreground: oklch(0.95 0.05 150);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.623 0.214 259.815);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/*
+ * NIA page chrome. The shared navbar and footer read these tokens, so wrapping them in
+ * .theme-nia (see components/shared/route-theme.tsx) turns them dark on /nia only.
+ * Values from Figma: navigation 8856:9064, footer 8856:9310.
+ */
+.theme-nia {
+  --background: #0e0e0e;
+  --foreground: #ffffff;
+  --muted: rgb(255 255 255 / 0.08);
+  --muted-foreground: rgb(255 255 255 / 0.62);
+  --accent: rgb(255 255 255 / 0.08);
+  --accent-foreground: #ffffff;
+  --popover: #18181b;
+  --popover-foreground: #ffffff;
+  --border: rgb(255 255 255 / 0.08);
+  --input: rgb(255 255 255 / 0.12);
+  /* Re-resolve the inherited text colour inside this scope; otherwise children inherit
+     body's light-theme foreground (near-black), e.g. the mobile menu icon vanished. */
+  color: var(--foreground);
+}
+
+/* <html>/<body> sit outside RouteTheme, so paint them dark too. Otherwise the
+   page's white base shows through while the auto-hiding header slides away and
+   on overscroll. color-scheme also gives the scrollbar a dark track. */
+html:has(.theme-nia),
+html:has(.theme-nia) body {
+  background-color: #0e0e0e;
+  color-scheme: dark;
+}
+
+/*
+ * Trax navbar (the header carries .trax-route on /formats/trax; the footer stays light).
+ * Over the hero (.trax-nav, see components/shared/route-theme.tsx) it is NIA's dark nav with
+ * the bar tinted by the playing cover, so it runs on into the hero's wash; once the hero has
+ * scrolled past, it is the usual white nav.
+ *
+ * Every nav colour is its light value mixed with its dark one by --trax-nav-dark (0 white,
+ * 1 dark), a registered number that eases between the two, so the bar, text, borders and
+ * button cross-fade together. The logo fades in step in JS (AnimatedLogo, same 0.4s).
+ *
+ * The tint: the colour at the top of the playing cover (components/trax/hero-wash.tsx), set
+ * on the header itself by PinnedHeader; 30% of it over the hero's #0a0a0a matches the wash's
+ * strength. Registered as a colour, so it eases from one cover to the next over the same 0.7s
+ * as the wash's cross-fade. Only the bar's own background takes it; items that painted a
+ * tinted token (or have their own colour transitions) would trail the bar and show up as boxes.
+ *
+ * Both animated values are set on the header and don't inherit, so an easing restyles only
+ * the nav. (Animated on <html>, every element on the page restyled each frame, and the nav
+ * fell behind the hero.)
+ */
+@property --trax-tint {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0a0a0a;
+}
+@property --trax-nav-dark {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+.trax-route {
+  --trax-dark: calc(var(--trax-nav-dark) * 100%);
+  --background: color-mix(in oklab, #0e0e0e var(--trax-dark), oklch(1 0 0));
+  --foreground: color-mix(in oklab, #ffffff var(--trax-dark), oklch(0.145 0 0));
+  --muted: color-mix(in oklab, rgb(255 255 255 / 0.08) var(--trax-dark), oklch(0.97 0 0));
+  --muted-foreground: color-mix(in oklab, rgb(255 255 255 / 0.62) var(--trax-dark), oklch(0.556 0 0));
+  --accent: color-mix(in oklab, rgb(255 255 255 / 0.08) var(--trax-dark), oklch(0.97 0 0));
+  --accent-foreground: color-mix(in oklab, #ffffff var(--trax-dark), oklch(0.205 0 0));
+  --popover: color-mix(in oklab, #18181b var(--trax-dark), oklch(1 0 0));
+  --popover-foreground: color-mix(in oklab, #ffffff var(--trax-dark), oklch(0.145 0 0));
+  --border: color-mix(in oklab, rgb(255 255 255 / 0.08) var(--trax-dark), oklch(0.922 0 0));
+  --input: color-mix(in oklab, rgb(255 255 255 / 0.12) var(--trax-dark), oklch(0.922 0 0));
+  color: var(--foreground);
+  background-color: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--trax-tint) 30%, #0a0a0a) var(--trax-dark),
+    oklch(1 0 0)
+  );
+  /* The tint on the wash's exact timing: 0.7s on Tailwind's ease-out (its duration-700
+     ease-out), so the nav and the hero change colour together. */
+  transition:
+    --trax-nav-dark 0.4s ease-out,
+    --trax-tint 0.7s cubic-bezier(0, 0, 0.2, 1);
+}
+.trax-route.trax-nav {
+  --trax-nav-dark: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trax-route {
+    transition: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
