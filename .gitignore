@@ -45,3 +45,17 @@ next-env.d.ts
 
 # generated News IQ quizzes (lib/quiz/generate.ts)
 /.cache
+
+# keep the template with variable names (no values)
+!.env.example
+
+# OS and editor files
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# Claude Code local settings (personal, may hold secrets)
+.claude/settings.local.json
